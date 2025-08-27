@@ -48,12 +48,7 @@ st.write("Rezolvarea pas cu pas a ecuațiilor logaritmice, exponentiale și ira�
 
 mode = st.selectbox("Tipul ecuației", ["Ecuație logaritmică","Ecuație exponențială","Ecuație irațională"])
 
-if "steps" not in st.session_state: st.session_state.steps=[]
-if "step_idx" not in st.session_state: st.session_state.step_idx=0
-
-def reset_steps(new_steps):
-    st.session_state.steps=new_steps
-    st.session_state.step_idx=0
+steps = []
 
 # ----------------- Input și generare pași -----------------
 if mode=="Ecuație logaritmică":
@@ -61,40 +56,28 @@ if mode=="Ecuație logaritmică":
     b = st.number_input("b",0)
     c = st.number_input("c",1)
     if st.button("Generează pașii"):
-        reset_steps(log_equation_steps(a,b,c))
+        steps = log_equation_steps(a,b,c)
 
 elif mode=="Ecuație exponențială":
     a = st.number_input("a",1)
     b = st.number_input("b",0)
     c = st.number_input("c",2)
     if st.button("Generează pașii"):
-        reset_steps(exp_equation_steps(a,b,c))
+        steps = exp_equation_steps(a,b,c)
 
 elif mode=="Ecuație irațională":
     a = st.number_input("a",1)
     b = st.number_input("b",0)
     c = st.number_input("c",2)
     if st.button("Generează pașii"):
-        reset_steps(radical_equation_steps(a,b,c))
+        steps = radical_equation_steps(a,b,c)
 
-# ----------------- Navigare pași -----------------
+# ----------------- Afișare pași -----------------
 st.divider()
-if st.session_state.steps:
-    total=len(st.session_state.steps)
-    title, desc=st.session_state.steps[st.session_state.step_idx]
-    st.subheader(f"Pas {st.session_state.step_idx+1}/{total}: {title}")
-    st.markdown(desc)
-
-    c1,c2,c3=st.columns([1,2,1])
-    with c1:
-        if st.button("⬅️ Înapoi",disabled=st.session_state.step_idx==0):
-            st.session_state.step_idx-=1
-    with c3:
-        if st.button("Înainte ➡️",disabled=st.session_state.step_idx>=total-1):
-            st.session_state.step_idx+=1
-
-    st.slider("Sari la pas",1,total,st.session_state.step_idx+1,key="slider_jump")
-    if st.session_state.slider_jump-1!=st.session_state.step_idx:
-        st.session_state.step_idx=st.session_state.slider_jump-1
+if steps:
+    st.subheader("Pașii de rezolvare:")
+    for idx, (title, desc) in enumerate(steps, start=1):
+        st.markdown(f"**Pas {idx}: {title}**")
+        st.markdown(desc)
 else:
     st.info("Completează coeficienții și apasă 'Generează pașii' pentru a vedea rezolvarea.")
