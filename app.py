@@ -1,15 +1,14 @@
 import streamlit as st
-from sympy import symbols, Eq, sqrt, log, exp, solve, simplify, latex
-from sympy import Integer
+from sympy import symbols, Eq, sqrt, log, exp, solve, latex
 
 x = symbols('x')
 
-st.set_page_config(page_title="Ecuații Avansate Interactiv", page_icon="🧮", layout="centered")
+st.set_page_config(page_title="Ecuații Avansate Pas cu Pas", page_icon="🧮", layout="centered")
 
 def L(expr):
     return f"${latex(expr)}$"
 
-# ----------------- Ecuații logaritmice -----------------
+# ----------------- Funcții pentru pași -----------------
 def log_equation_steps(a,b,c):
     steps=[]
     eq = Eq(log(a*x + b), c)
@@ -20,7 +19,6 @@ def log_equation_steps(a,b,c):
     steps.append(("Rezolvăm pentru x", f"x = {sol}"))
     return steps
 
-# ----------------- Ecuații exponențiale -----------------
 def exp_equation_steps(a,b,c):
     steps=[]
     eq = Eq(exp(a*x + b), c)
@@ -31,7 +29,6 @@ def exp_equation_steps(a,b,c):
     steps.append(("Rezolvăm pentru x", f"x = {sol}"))
     return steps
 
-# ----------------- Ecuații iraționale -----------------
 def radical_equation_steps(a,b,c):
     steps=[]
     eq = Eq(sqrt(a*x + b), c)
@@ -43,12 +40,17 @@ def radical_equation_steps(a,b,c):
     return steps
 
 # ----------------- UI -----------------
-st.title("🧮 Ecuații Avansate Interactiv")
-st.write("Rezolvarea pas cu pas a ecuațiilor logaritmice, exponentiale și iraționale")
+st.title("🧮 Ecuații Avansate – Pas cu Pas")
+st.write("Logaritmice, exponențiale și iraționale")
 
 mode = st.selectbox("Tipul ecuației", ["Ecuație logaritmică","Ecuație exponențială","Ecuație irațională"])
 
-steps = []
+if "steps" not in st.session_state: st.session_state.steps=[]
+if "step_idx" not in st.session_state: st.session_state.step_idx=0
+
+def reset_steps(new_steps):
+    st.session_state.steps = new_steps
+    st.session_state.step_idx = 0
 
 # ----------------- Input și generare pași -----------------
 if mode=="Ecuație logaritmică":
@@ -56,28 +58,39 @@ if mode=="Ecuație logaritmică":
     b = st.number_input("b",0)
     c = st.number_input("c",1)
     if st.button("Generează pașii"):
-        steps = log_equation_steps(a,b,c)
+        reset_steps(log_equation_steps(a,b,c))
 
 elif mode=="Ecuație exponențială":
     a = st.number_input("a",1)
     b = st.number_input("b",0)
     c = st.number_input("c",2)
     if st.button("Generează pașii"):
-        steps = exp_equation_steps(a,b,c)
+        reset_steps(exp_equation_steps(a,b,c))
 
 elif mode=="Ecuație irațională":
     a = st.number_input("a",1)
     b = st.number_input("b",0)
     c = st.number_input("c",2)
     if st.button("Generează pașii"):
-        steps = radical_equation_steps(a,b,c)
+        reset_steps(radical_equation_steps(a,b,c))
 
-# ----------------- Afișare pași -----------------
+# ----------------- Navigare pași -----------------
 st.divider()
-if steps:
-    st.subheader("Pașii de rezolvare:")
-    for idx, (title, desc) in enumerate(steps, start=1):
-        st.markdown(f"**Pas {idx}: {title}**")
-        st.markdown(desc)
+if st.session_state.steps:
+    total = len(st.session_state.steps)
+    idx = st.session_state.step_idx
+    title, desc = st.session_state.steps[idx]
+
+    st.subheader(f"Pas {idx+1}/{total}: {title}")
+    st.markdown(desc)
+
+    c1, c2, c3 = st.columns([1,2,1])
+    with c1:
+        if st.button("⬅️ Înapoi", disabled=idx==0):
+            st.session_state.step_idx -= 1
+    with c3:
+        if st.button("Înainte ➡️", disabled=idx==total-1):
+            st.session_state.step_idx += 1
+
 else:
     st.info("Completează coeficienții și apasă 'Generează pașii' pentru a vedea rezolvarea.")
