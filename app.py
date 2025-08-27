@@ -65,7 +65,7 @@ def reset_steps(new_steps):
 
 # ----------------- Input pe orizontală -----------------
 if mode=="Ecuații logaritmice":
-    st.subheader("Ecuație logaritmică: log_b(bx + c) = d")
+    st.subheader("Ecuație logaritmică: log_a(bx + c) = d")
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         a = st.number_input("baza a", 2, step=1)
@@ -145,3 +145,4 @@ if st.session_state.steps:
                 st.session_state.step_idx +=1
 else:
     st.info("Completează parametrii și apasă 'Generează pașii' pentru a vedea rezolvarea.")
+
